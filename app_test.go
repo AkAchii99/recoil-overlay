@@ -77,6 +77,28 @@ func TestVoiceLeadAndExactVisualBoundaries(t *testing.T) {
 		t.Fatal("pattern must not loop")
 	}
 }
+func TestArrowLead(t *testing.T) {
+	a, _ := testApp()
+	a.settings.ArrowLeadMS = 100
+	at := time.Now()
+	a.startLocked(at, false)
+	a.advanceLocked(at.Add(699*time.Millisecond), true)
+	if a.snapshotLocked().Direction != "right" {
+		t.Fatal("before the lead the arrow should still be right")
+	}
+	a.advanceLocked(at.Add(700*time.Millisecond), true)
+	if s := a.snapshotLocked(); s.Direction != "left" || s.Phase != 0 {
+		t.Fatalf("the arrow should lead the 800 ms switch by 100 ms: %+v", s)
+	}
+	a.advanceLocked(at.Add(2150*time.Millisecond), true)
+	if a.snapshotLocked().Direction != "right" {
+		t.Fatal("past the last switch the arrow should hold the last strafe")
+	}
+	a.cancelLocked()
+	if a.snapshotLocked().Direction != "right" {
+		t.Fatal("an idle overlay should show the first strafe")
+	}
+}
 func TestStartGatesAndFreshPress(t *testing.T) {
 	for _, mode := range []string{"editing", "unfocused", "unavailable"} {
 		t.Run(mode, func(t *testing.T) {

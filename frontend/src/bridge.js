@@ -37,6 +37,7 @@ const mock = {
     opacity: 90,
     theme: "green",
     arrows: true,
+    arrowLeadMs: 0,
     timeline: true,
     timelineIdle: false,
     timelineOffset: 160,
@@ -116,7 +117,14 @@ const browserAPI = {
       const done = mock.elapsedMs >= totalMs;
       // A finished pattern holds its last phase.
       mock.phase = starts.findLastIndex((at) => mock.elapsedMs >= at);
-      mock.direction = phases[mock.phase]?.direction || "";
+      // The arrow may lead its phase, as the cue does.
+      const ahead = mock.elapsedMs + mock.settings.arrowLeadMs;
+      mock.direction =
+        phases[
+          ahead < totalMs
+            ? starts.findLastIndex((at) => ahead >= at)
+            : mock.phase
+        ]?.direction || "";
       // Each cue leads its phase; the first cannot, and is opt-in.
       while (
         nextCue < phases.length &&

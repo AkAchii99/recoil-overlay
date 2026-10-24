@@ -8,6 +8,7 @@ export namespace main {
 	    opacity: number;
 	    theme: string;
 	    arrows: boolean;
+	    arrowLeadMs: number;
 	    timeline: boolean;
 	    timelineIdle: boolean;
 	    offsetX: number;
@@ -39,6 +40,7 @@ export namespace main {
 	        this.opacity = source["opacity"];
 	        this.theme = source["theme"];
 	        this.arrows = source["arrows"];
+	        this.arrowLeadMs = source["arrowLeadMs"];
 	        this.timeline = source["timeline"];
 	        this.timelineIdle = source["timelineIdle"];
 	        this.offsetX = source["offsetX"];

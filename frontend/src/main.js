@@ -30,6 +30,8 @@ const sliders = {
 const cardToggles = ["arrows", "timeline", "voice"];
 const toggles = [...cardToggles, "timelineIdle", "voiceStart"];
 const selects = ["theme", "voiceStyle"];
+// Lead times, in number fields.
+const leads = ["arrowLeadMs", "voiceLeadMs"];
 // The actions a key can be bound to (see BindKey in app.go).
 const bindings = {
   left: "Strafe left",
@@ -55,12 +57,25 @@ const select = (id, label, description, options) =>
   `<div class="field"><span>${label}</span><span class="select"><select id="${id}" aria-label="${description}"><button><selectedcontent></selectedcontent></button>${options
     .map(([value, name]) => `<option value="${value}">${name}</option>`)
     .join("")}</select>${icon("chevron")}</span></div>`;
+// A number field for how long a cue comes before each change of direction.
+const lead = (id, label, hint) =>
+  `<div class="field" title="${hint}"><span>Lead</span><small>before each switch</small><span class="number"><input id="${id}" type="number" min="0" max="350" step="10" aria-label="${label}"><i>ms</i></span></div>`;
 const check = (key, label, hint) =>
   `<label class="field wide" title="${hint}"><span>${label}</span><input id="${key}-toggle" type="checkbox" role="switch"></label>`;
 const card = (name, title, body) =>
   `<section class="card ${name}"><h2>${title}${cardToggles.includes(name) ? `<input id="${name}-toggle" type="checkbox" role="switch" aria-label="${title}">` : ""}</h2><div class="card-body">${body}</div></section>`;
 const cards = [
-  card("arrows", "Arrows", slider("gap") + slider("arrowSize")),
+  card(
+    "arrows",
+    "Arrows",
+    slider("gap") +
+      slider("arrowSize") +
+      lead(
+        "arrowLeadMs",
+        "Arrow lead",
+        "How long before each change of direction its arrow lights up",
+      ),
+  ),
   card(
     "timeline",
     "Timeline",
@@ -95,7 +110,11 @@ const cards = [
       ["natural", "Natural voice"],
       ["tones", "Tones"],
     ]) +
-      `<div class="field" title="How long before each change of direction its cue starts"><span>Lead</span><small>before each switch</small><span class="number"><input id="voiceLeadMs" type="number" min="0" max="350" step="10" aria-label="Voice lead"><i>ms</i></span></div>` +
+      lead(
+        "voiceLeadMs",
+        "Voice lead",
+        "How long before each change of direction its cue starts",
+      ) +
       check(
         "voiceStart",
         "Opening cue",
@@ -259,8 +278,8 @@ function render(s) {
       `${((config[id] - min) / (max - min)) * 100}%`,
     );
   }
-  if (document.activeElement !== $("voiceLeadMs"))
-    $("voiceLeadMs").value = config.voiceLeadMs;
+  for (const id of leads)
+    if (document.activeElement !== $(id)) $(id).value = config[id];
   for (const id of selects) $(id).value = config[id];
   for (const key of toggles) $(`${key}-toggle`).checked = config[key];
   // A switched-off category keeps its settings but fades the whole card.
@@ -342,7 +361,7 @@ for (const key in sliders) {
   $(key).addEventListener("change", (e) => change(key, Number(e.target.value)));
   typed($(`${key}-number`), key);
 }
-typed($("voiceLeadMs"), "voiceLeadMs");
+for (const id of leads) typed($(id), id);
 for (const key of toggles)
   $(`${key}-toggle`).addEventListener("change", (e) =>
     change(key, e.target.checked),

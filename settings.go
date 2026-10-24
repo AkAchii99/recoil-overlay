@@ -16,6 +16,7 @@ type Settings struct {
 	Opacity        int    `json:"opacity"`
 	Theme          string `json:"theme"` // colour scheme, see palettes
 	Arrows         bool   `json:"arrows"`
+	ArrowLeadMS    int    `json:"arrowLeadMs"` // light each arrow this long before its switch
 	Timeline       bool   `json:"timeline"`
 	TimelineIdle   bool   `json:"timelineIdle"` // hide the timeline while the shoot key is held
 	OffsetX        int    `json:"offsetX"`
@@ -62,6 +63,7 @@ func (s Settings) normalized() Settings {
 	s.WeaponID, s.ModeID = weapon.ID, mode.ID
 	s.Gap = clamp(s.Gap, 40, 300)
 	s.ArrowSize = clamp(s.ArrowSize, 24, 72)
+	s.ArrowLeadMS = clamp(s.ArrowLeadMS, 0, 350)
 	s.Opacity = clamp(s.Opacity, 20, 100)
 	if _, known := palettes[s.Theme]; !known {
 		s.Theme = d.Theme

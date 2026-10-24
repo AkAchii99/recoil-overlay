@@ -563,6 +563,10 @@ func (a *App) snapshotLocked() Snapshot {
 		phase = len(mode.Phases) - 1
 		direction = mode.Phases[phase].Direction
 	}
+	// A running spray lights the next arrow ahead of its switch, if asked to.
+	if _, next, done := pattern.At(mode.Phases, a.elapsed+int64(a.settings.ArrowLeadMS)); a.running && !done {
+		direction = next
+	}
 	modeLabel := "EXPECTED STRAFE"
 	if mode.ID != "default" {
 		modeLabel = strings.ToUpper(mode.Name)
